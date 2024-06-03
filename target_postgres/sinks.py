@@ -41,6 +41,14 @@ class PostgresSink(SQLSink):
         """
         return cast(PostgresConnector, self._connector)
 
+    @property
+    def table_name(self) -> str:
+        return (
+            self.conform_name(self.config.get("table_name"), "table")
+            if self.config.get("table_name")
+            else super().table_name
+        )
+
     def setup(self) -> None:
         """Set up Sink.
 
@@ -198,9 +206,7 @@ class PostgresSink(SQLSink):
         if self.append_only is True:
             # Insert
             select_stmt = sa.select(from_table.columns).select_from(from_table)
-            insert_stmt = to_table.insert().from_select(
-                names=from_table.columns, select=select_stmt
-            )
+            insert_stmt = to_table.insert().from_select(names=from_table.columns, select=select_stmt)
             connection.execute(insert_stmt)
         else:
             join_predicates = []
@@ -223,9 +229,7 @@ class PostgresSink(SQLSink):
                 .select_from(from_table.outerjoin(to_table, join_condition))
                 .where(where_condition)
             )
-            insert_stmt = sa.insert(to_table).from_select(
-                names=from_table.columns, select=select_stmt
-            )
+            insert_stmt = sa.insert(to_table).from_select(names=from_table.columns, select=select_stmt)
 
             connection.execute(insert_stmt)
 
@@ -237,9 +241,7 @@ class PostgresSink(SQLSink):
                 to_table_column: sa.Column = to_table.columns[column_name]
                 update_columns[to_table_column] = from_table_column
 
-            update_stmt = (
-                sa.update(to_table).where(where_condition).values(update_columns)
-            )
+            update_stmt = sa.update(to_table).where(where_condition).values(update_columns)
             connection.execute(update_stmt)
 
         return None
@@ -319,8 +321,7 @@ class PostgresSink(SQLSink):
         """
         if self.config["activate_version"] is False:
             self.logger.warning(
-                "An activate version message was received, but activate_version is set "
-                "to false so it was ignored."
+                "An activate version message was received, but activate_version is set " "to false so it was ignored."
             )
             return
 
@@ -341,8 +342,7 @@ class PostgresSink(SQLSink):
                 connection=connection,
             ):
                 raise RuntimeError(
-                    f"{self.version_column_name} is required for activate version "
-                    "messages, but doesn't exist."
+                    f"{self.version_column_name} is required for activate version " "messages, but doesn't exist."
                 )
             if not (
                 self.config["hard_delete"]
@@ -379,18 +379,11 @@ class PostgresSink(SQLSink):
             # Need to deal with the case where data doesn't exist for the version column
             update_stmt = (
                 sa.update(target_table)
-                .values(
-                    {
-                        target_table.c[self.soft_delete_column_name]: bindparam(
-                            "deletedate"
-                        )
-                    }
-                )
+                .values({target_table.c[self.soft_delete_column_name]: bindparam("deletedate")})
                 .where(
                     sa.and_(
                         sa.or_(
-                            target_table.c[self.version_column_name]
-                            < bindparam("version"),
+                            target_table.c[self.version_column_name] < bindparam("version"),
                             target_table.c[self.version_column_name].is_(None),
                         ),
                         target_table.c[self.soft_delete_column_name].is_(None),

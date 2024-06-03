@@ -43,10 +43,7 @@ class TargetPostgres(SQLTarget):
             and self.config.get("user") is not None
             and self.config.get("password") is not None
             and self.config.get("dialect+driver") is not None
-        ), (
-            "Need either the sqlalchemy_url to be set or host, port, user,"
-            + "password, and dialect+driver to be set"
-        )
+        ), ("Need either the sqlalchemy_url to be set or host, port, user," + "password, and dialect+driver to be set")
 
         # If sqlalchemy_url is not being used and ssl_enable is on, ssl_mode must have
         # one of six allowable values. If ssl_mode is verify-ca or verify-full, a
@@ -54,17 +51,12 @@ class TargetPostgres(SQLTarget):
         assert (
             (self.config.get("sqlalchemy_url") is not None)
             or (self.config.get("ssl_enable") is False)
-            or (
-                self.config.get("ssl_mode") in {"disable", "allow", "prefer", "require"}
-            )
+            or (self.config.get("ssl_mode") in {"disable", "allow", "prefer", "require"})
             or (
                 self.config.get("ssl_mode") in {"verify-ca", "verify-full"}
                 and self.config.get("ssl_certificate_authority") is not None
             )
-        ), (
-            "ssl_enable is true but invalid values are provided for ssl_mode and/or"
-            + "ssl_certificate_authority."
-        )
+        ), ("ssl_enable is true but invalid values are provided for ssl_mode and/or" + "ssl_certificate_authority.")
 
         # If sqlalchemy_url is not being used and ssl_client_certificate_enable is on,
         # the client must provide a certificate and associated private key.
@@ -80,9 +72,7 @@ class TargetPostgres(SQLTarget):
             + " ssl_client_certificate or ssl_client_private_key are unset."
         )
 
-        assert self.config.get("add_record_metadata") or not self.config.get(
-            "activate_version"
-        ), (
+        assert self.config.get("add_record_metadata") or not self.config.get("activate_version"), (
             "Activate version messages can't be processed unless add_record_metadata "
             "is set to true. To ignore Activate version messages instead, Set the "
             "`activate_version` configuration to False."
@@ -93,10 +83,7 @@ class TargetPostgres(SQLTarget):
         th.Property(
             "host",
             th.StringType,
-            description=(
-                "Hostname for postgres instance. "
-                + "Note if sqlalchemy_url is set this will be ignored."
-            ),
+            description=("Hostname for postgres instance. " + "Note if sqlalchemy_url is set this will be ignored."),
         ),
         th.Property(
             "port",
@@ -110,26 +97,17 @@ class TargetPostgres(SQLTarget):
         th.Property(
             "user",
             th.StringType,
-            description=(
-                "User name used to authenticate. "
-                + "Note if sqlalchemy_url is set this will be ignored."
-            ),
+            description=("User name used to authenticate. " + "Note if sqlalchemy_url is set this will be ignored."),
         ),
         th.Property(
             "password",
             th.StringType,
-            description=(
-                "Password used to authenticate. "
-                "Note if sqlalchemy_url is set this will be ignored."
-            ),
+            description=("Password used to authenticate. " "Note if sqlalchemy_url is set this will be ignored."),
         ),
         th.Property(
             "database",
             th.StringType,
-            description=(
-                "Database name. "
-                + "Note if sqlalchemy_url is set this will be ignored."
-            ),
+            description=("Database name. " + "Note if sqlalchemy_url is set this will be ignored."),
         ),
         th.Property(
             "sqlalchemy_url",
@@ -158,6 +136,12 @@ class TargetPostgres(SQLTarget):
             th.StringType,
             description="Postgres schema to send data to, example: tap-clickup",
             default="melty",
+        ),
+        th.Property(
+            "table_name",
+            th.StringType,
+            required=False,
+            description="The name of the table to be created/updated at the Postgres destination. It should not contain spaces and special characters.",  # WARNING: this only supports sending one table to the destination
         ),
         th.Property(
             "activate_version",
@@ -297,10 +281,7 @@ class TargetPostgres(SQLTarget):
                     "host",
                     th.StringType,
                     required=False,
-                    description=(
-                        "Host of the bastion host, this is the host "
-                        "we'll connect to via ssh"
-                    ),
+                    description=("Host of the bastion host, this is the host " "we'll connect to via ssh"),
                 ),
                 th.Property(
                     "username",
@@ -328,9 +309,7 @@ class TargetPostgres(SQLTarget):
                     required=False,
                     secret=True,
                     default=None,
-                    description=(
-                        "Private Key Password, leave None if no password is set"
-                    ),
+                    description=("Private Key Password, leave None if no password is set"),
                 ),
             ),
             required=False,
